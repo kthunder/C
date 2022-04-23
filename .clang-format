@@ -1,0 +1,27 @@
+# Defines the ANGLE style for automatic reformatting.
+# https://code.google.com/p/angleproject/wiki/CodingStandard
+# See Clang docs: http://clang.llvm.org/docs/ClangFormatStyleOptions.html
+BasedOnStyle: LLVM
+
+Language: Cpp
+Standard: Cpp11
+UseTab: Always
+IndentWidth: 8
+ColumnLimit: 120
+
+PointerAlignment: Left
+AlignConsecutiveMacros: true
+AllowAllParametersOfDeclarationOnNextLine: true
+BinPackParameters: true
+AlignAfterOpenBracket: DontAlign
+
+AllowShortFunctionsOnASingleLine: None
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterControlStatement: true
+  AfterCaseLabel: true
+  AfterFunction: true
+  BeforeElse: true
+
+

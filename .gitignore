@@ -1,0 +1,9 @@
+*.[oa]
+*.exe
+*.out
+#*.txt
+#*.bat
+#*.cmd
+*~
+#test/
+.vscode/
