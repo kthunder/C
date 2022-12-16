@@ -6,7 +6,7 @@ BasedOnStyle: LLVM
 Language: Cpp
 Standard: Cpp11
 UseTab: Always
-IndentWidth: 8
+IndentWidth: 4
 ColumnLimit: 120
 
 PointerAlignment: Left
