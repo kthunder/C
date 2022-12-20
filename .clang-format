@@ -4,7 +4,7 @@
 BasedOnStyle: LLVM
 
 Language: Cpp
-Standard: Cpp11
+Standard: Latest
 UseTab: Always
 IndentWidth: 4
 ColumnLimit: 120
@@ -13,13 +13,12 @@ PointerAlignment: Left
 AlignConsecutiveMacros: true
 AllowAllParametersOfDeclarationOnNextLine: true
 BinPackParameters: true
-AlignAfterOpenBracket: DontAlign
 
-AllowShortFunctionsOnASingleLine: None
+AllowShortFunctionsOnASingleLine: All
 
 BreakBeforeBraces: Custom
 BraceWrapping:
-  AfterControlStatement: true
+  AfterControlStatement: Always
   AfterCaseLabel: true
   AfterFunction: true
   BeforeElse: true

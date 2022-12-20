@@ -43,7 +43,7 @@ int queue_dequeue(queue* q, int* value)
     pthread_mutex_lock(&q->headLock);
     node* tmp = q->head;
     node* newNode = tmp->next;
-    if(newNode == NULL)
+    if (newNode == NULL)
     {
 	pthread_mutex_unlock(&q->headLock);
 	return -1;
@@ -55,16 +55,29 @@ int queue_dequeue(queue* q, int* value)
     return 0;
 }
 
-void queue_display(queue *q)
+void queue_display(queue* q)
 {
     printf("queue:");
     printf("head=>");
-    while (q->head)
+    node* tmp = q->head;
+    while (tmp)
     {
-
+	printf("%d=>", tmp->val);
+	tmp = tmp->next;
     }
+    printf("end");
 }
 
 int main()
 {
+    queue que;
+    int value;
+    queue_init(&que);
+    for (int i = 0; i < 10; ++i)
+    {
+	queue_enqueue(&que, i);
+    }
+    queue_dequeue(&que, &value);
+    queue_display(&que);
+    return 0;
 }
