@@ -3,12 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct node {
+typedef struct node
+{
     int val;
     struct node* next;
 } node;
 
-typedef struct queue {
+typedef struct queue
+{
     node* head;
     node* tail;
     pthread_mutex_t headLock;
@@ -45,8 +47,8 @@ int queue_dequeue(queue* q, int* value)
     node* newNode = tmp->next;
     if (newNode == NULL)
     {
-	pthread_mutex_unlock(&q->headLock);
-	return -1;
+        pthread_mutex_unlock(&q->headLock);
+        return -1;
     }
     *value = tmp->val;
     q->head = newNode;
@@ -62,8 +64,8 @@ void queue_display(queue* q)
     node* tmp = q->head;
     while (tmp)
     {
-	printf("%d=>", tmp->val);
-	tmp = tmp->next;
+        printf("%d=>", tmp->val);
+        tmp = tmp->next;
     }
     printf("end");
 }
@@ -75,7 +77,7 @@ int main()
     queue_init(&que);
     for (int i = 0; i < 10; ++i)
     {
-	queue_enqueue(&que, i);
+        queue_enqueue(&que, i);
     }
     queue_dequeue(&que, &value);
     queue_display(&que);
