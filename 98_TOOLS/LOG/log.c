@@ -26,182 +26,165 @@
 
 typedef struct
 {
-    log_LogFn fn;
-    void* udata;
-    int level;
+	log_LogFn fn;
+	void* udata;
+	int level;
 } Callback;
 
+// 当前log模块配置结构体
 static struct
 {
-    void* udata;
-    log_LockFn lock;
-    int level;  // level 用于保存当前的 log 等级，等级大于 level 的 log 才会被输出到标准输出。
-    bool quiet; // quiet 用于打开、关闭 log 输出。
-    Callback callbacks[MAX_CALLBACKS];
-} L;
+	void* udata;
+	log_LockFn lock;
+	int level;	// level 用于保存当前的 log 等级，等级大于 level 的 log 才会被输出到标准输出。
+	bool quiet; // quiet 用于打开、关闭 log 输出。
+	Callback callbacks[MAX_CALLBACKS];
+} Log_ConfigData;
 
 static const char* level_strings[] = {
-    "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"};
+	"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"};
 
 #ifdef LOG_USE_COLOR
 static const char* level_colors[] = {
-    "\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"};
+	"\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"};
 #endif
 
 static void stdout_callback(log_Event* ev)
 {
-    char buf[16];
-    buf[strftime(buf, sizeof(buf), "%H:%M:%S", ev->time)] = '\0';
+	char buf[16];
+	buf[strftime(buf, sizeof(buf), "%H:%M:%S", ev->time)] = '\0';
 #ifdef LOG_USE_COLOR
-    fprintf(
-        ev->udata, "%s %s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ",
-        buf, level_colors[ev->level], level_strings[ev->level],
-        ev->file, ev->line);
+	fprintf(
+		ev->udata, "%s %s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ",
+		buf, level_colors[ev->level], level_strings[ev->level],
+		ev->file, ev->line);
 #else
-    fprintf(
-        ev->udata, "%s %-5s %s:%d: ",
-        buf, level_strings[ev->level], ev->file, ev->line);
+	fprintf(
+		ev->udata, "%s %-5s %s:%d: ",
+		buf, level_strings[ev->level], ev->file, ev->line);
 #endif
-    vfprintf(ev->udata, ev->fmt, ev->ap);
-    fprintf(ev->udata, "\n");
-    fflush(ev->udata);
+	vfprintf(ev->udata, ev->fmt, ev->ap);
+	fprintf(ev->udata, "\n");
+	fflush(ev->udata);
 }
 
 static void file_callback(log_Event* ev)
 {
-    char buf[64];
-    buf[strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", ev->time)] = '\0';
-    fprintf(
-        ev->udata, "%s %-5s %s:%d: ",
-        buf, level_strings[ev->level], ev->file, ev->line);
-    vfprintf(ev->udata, ev->fmt, ev->ap);
-    fprintf(ev->udata, "\n");
-    fflush(ev->udata);
+	char buf[64];
+	buf[strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", ev->time)] = '\0';
+	fprintf(
+		ev->udata, "%s %-5s %s:%d: ",
+		buf, level_strings[ev->level], ev->file, ev->line);
+	vfprintf(ev->udata, ev->fmt, ev->ap);
+	fprintf(ev->udata, "\n");
+	fflush(ev->udata);
 }
 
 static void lock(void)
 {
-    if (L.lock) { L.lock(true, L.udata); }
+	if (Log_ConfigData.lock) { Log_ConfigData.lock(true, Log_ConfigData.udata); }
 }
 
 static void unlock(void)
 {
-    if (L.lock) { L.lock(false, L.udata); }
+	if (Log_ConfigData.lock) { Log_ConfigData.lock(false, Log_ConfigData.udata); }
 }
 
 // 获取日志等级字符串
 const char* log_level_string(int level)
 {
-    return level_strings[level];
+	return level_strings[level];
 }
 
 void log_set_lock(log_LockFn fn, void* udata)
 {
-    L.lock = fn;
-    L.udata = udata;
+	Log_ConfigData.lock = fn;
+	Log_ConfigData.udata = udata;
 }
 
 // 设置日志等级
 void log_set_level(int level)
 {
-    L.level = level;
+	Log_ConfigData.level = level;
 }
 
 // 设置日志开关
 void log_set_quiet(bool enable)
 {
-    L.quiet = enable;
+	Log_ConfigData.quiet = enable;
 }
 
 // 添加callback，用于增加日志输出方式
 int log_add_callback(log_LogFn fn, void* udata, int level)
 {
-    for (int i = 0; i < MAX_CALLBACKS; i++)
-    {
-        if (!L.callbacks[i].fn)
-        {
-            L.callbacks[i] = (Callback){fn, udata, level};
-            return 0;
-        }
-    }
-    return -1;
-}
-
-// 添加文件输出callback
-int log_add_fp(FILE* fp, int level)
-{
-    return log_add_callback(file_callback, fp, level);
+	for (int i = 0; i < MAX_CALLBACKS; i++)
+	{
+		if (!Log_ConfigData.callbacks[i].fn)
+		{
+			Log_ConfigData.callbacks[i] = (Callback){fn, udata, level};
+			return 0;
+		}
+	}
+	return -1;
 }
 
 static void init_event(log_Event* ev, void* udata)
 {
-    if (!ev->time)
-    {
-        time_t t = time(NULL);
-        ev->time = localtime(&t);
-    }
-    ev->udata = udata;
+	if (!ev->time)
+	{
+		time_t t = time(NULL);
+		ev->time = localtime(&t);
+	}
+	ev->udata = udata;
 }
 
 // 日志输出函数
 void log_log(int level, const char* file, int line, const char* fmt, ...)
 {
-    log_Event ev = {
-        .fmt = fmt,
-        .file = file,
-        .line = line,
-        .level = level,
-    };
+	log_Event ev = {
+		.fmt = fmt,
+		.file = file,
+		.line = line,
+		.level = level,
+	};
 
-    lock();
+	lock();
 
-    // 标准输出
-    if (!L.quiet && level >= L.level)
-    {
-        init_event(&ev, stderr);
-        va_start(ev.ap, fmt);
-        stdout_callback(&ev);
-        va_end(ev.ap);
-    }
-    // callback输出
-    for (int i = 0; i < MAX_CALLBACKS && L.callbacks[i].fn; i++)
-    {
-        Callback* cb = &L.callbacks[i];
-        if (level >= cb->level)
-        {
-            init_event(&ev, cb->udata);
-            va_start(ev.ap, fmt);
-            cb->fn(&ev);
-            va_end(ev.ap);
-        }
-    }
+	// callback输出
+	for (int i = 0; i < MAX_CALLBACKS && Log_ConfigData.callbacks[i].fn; i++)
+	{
+		Callback* cb = &Log_ConfigData.callbacks[i];
+		if (!Log_ConfigData.quiet && level >= cb->level)
+		{
+			init_event(&ev, cb->udata);
+			va_start(ev.ap, fmt);
+			cb->fn(&ev);
+			va_end(ev.ap);
+		}
+	}
 
-    unlock();
+	unlock();
 }
 
 // test
 int main(int argc, char* argv[])
 {
-    log_set_level(0);
-    log_set_quiet(0);
+	log_set_level(0);
+	log_set_quiet(0);
 
-    // FILE *fp1, *fp2;
-    // fp1 = fopen("./log_info.txt", "ab");
-    // if(fp1 == NULL)
-    //     return -1;
+	// FILE *fp1;
+	// fp1 = fopen("./log_info.txt", "ab");
+	// if (fp1 == NULL)
+	// return -1;
 
-    // fp2 = fopen("./log_debug.txt", "ab");
-    // if(fp2 == NULL)
-    //     return -1;
+	// log_add_callback(file_callback, fp1, LOG_INFO);
+	log_add_callback(stdout_callback, stderr, LOG_TRACE);
 
-    // log_add_fp(fp1, LOG_INFO);
-    // log_add_fp(fp2, LOG_DEBUG);
+	log_debug("debug");
+	log_info("info");
+	log_warn("warn");
 
-    log_debug("debug");
-    log_info("info");
-    log_warn("warn");
-
-    // fclose(fp2);
-    // fclose(fp1);
-    return 0;
+	// fclose(fp2);
+	// fclose(fp1);
+	return 0;
 }
