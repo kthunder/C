@@ -35,9 +35,9 @@ typedef struct
 static struct
 {
 	void* udata;
-	log_LockFn lock;
-	int level;	// level 用于保存当前的 log 等级，等级大于 level 的 log 才会被输出到标准输出。
-	bool quiet; // quiet 用于打开、关闭 log 输出。
+	log_LockFn lock; // 锁函数
+	int level;		 // level 用于保存当前的 log 等级，等级大于 level 的 log 才会被输出到标准输出。
+	bool quiet;		 // quiet 用于打开、关闭 log 输出。
 	Callback callbacks[MAX_CALLBACKS];
 } Log_ConfigData;
 
@@ -90,19 +90,22 @@ static void unlock(void)
 	if (Log_ConfigData.lock) { Log_ConfigData.lock(false, Log_ConfigData.udata); }
 }
 
-void log_set_lock(log_LockFn fn, void* udata)
+void log_init(int level, bool enable, log_LockFn fn, void* udata)
 {
+	// 设置日志等级
+	Log_ConfigData.level = level;
+	// 设置日志开关
+	Log_ConfigData.quiet = enable;
+	// 设置锁函数
 	Log_ConfigData.lock = fn;
 	Log_ConfigData.udata = udata;
 }
 
-// 设置日志等级
 void log_set_level(int level)
 {
 	Log_ConfigData.level = level;
 }
 
-// 设置日志开关
 void log_set_quiet(bool enable)
 {
 	Log_ConfigData.quiet = enable;
