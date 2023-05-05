@@ -53,7 +53,6 @@ enum
 #define log_fatal(...) log_log(LOG_FATAL, __FILE__, __LINE__, __VA_ARGS__)
 
 // 控制和功能扩展。
-const char* log_level_string(int level);
 void log_set_lock(log_LockFn fn, void* udata);
 void log_set_level(int level);
 void log_set_quiet(bool enable);

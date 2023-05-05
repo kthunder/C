@@ -90,12 +90,6 @@ static void unlock(void)
 	if (Log_ConfigData.lock) { Log_ConfigData.lock(false, Log_ConfigData.udata); }
 }
 
-// 获取日志等级字符串
-const char* log_level_string(int level)
-{
-	return level_strings[level];
-}
-
 void log_set_lock(log_LockFn fn, void* udata)
 {
 	Log_ConfigData.lock = fn;
@@ -128,22 +122,17 @@ int log_add_callback(log_LogFn fn, void* udata, int level)
 	return -1;
 }
 
-static void init_event(log_Event* ev, void* udata)
-{
-	if (!ev->time)
-	{
-		time_t t = time(NULL);
-		ev->time = localtime(&t);
-	}
-	ev->udata = udata;
-}
-
 // 日志输出函数
 void log_log(int level, const char* file, int line, const char* fmt, ...)
 {
+	time_t t = time(NULL);
+
 	log_Event ev = {
+		// va_list ap;
 		.fmt = fmt,
 		.file = file,
+		.time = localtime(&t),
+		// void* udata;
 		.line = line,
 		.level = level,
 	};
@@ -156,7 +145,7 @@ void log_log(int level, const char* file, int line, const char* fmt, ...)
 		Callback* cb = &Log_ConfigData.callbacks[i];
 		if (!Log_ConfigData.quiet && level >= cb->level)
 		{
-			init_event(&ev, cb->udata);
+			ev.udata = cb->udata;
 			va_start(ev.ap, fmt);
 			cb->fn(&ev);
 			va_end(ev.ap);
@@ -170,21 +159,21 @@ void log_log(int level, const char* file, int line, const char* fmt, ...)
 int main(int argc, char* argv[])
 {
 	log_set_level(0);
-	log_set_quiet(0);
 
-	// FILE *fp1;
-	// fp1 = fopen("./log_info.txt", "ab");
-	// if (fp1 == NULL)
-	// return -1;
+	// FILE* fp = fopen("./log_info.txt", "ab");
+	// if (fp == NULL)
+	// 	return -1;
 
-	// log_add_callback(file_callback, fp1, LOG_INFO);
+	// log_add_callback(file_callback, fp, LOG_INFO);
 	log_add_callback(stdout_callback, stderr, LOG_TRACE);
 
-	log_debug("debug");
-	log_info("info");
-	log_warn("warn");
+	log_trace("log_trace");
+	log_debug("log_debug");
+	log_info("log_info");
+	log_warn("log_warn");
+	log_error("log_error");
+	log_fatal("log_fatal");
 
-	// fclose(fp2);
-	// fclose(fp1);
+	// fclose(fp);
 	return 0;
 }
