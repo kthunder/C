@@ -57,7 +57,7 @@ static void stdout_callback(log_Event* ev)
 	char time_string[16];
 	time_string[strftime(time_string, sizeof(time_string), "%H:%M:%S", ev->time)] = '\0';
 #ifdef LOG_USE_COLOR
-	// fprintf(ev->udata, "%s %s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ", time_string, level_colors[ev->level], level_strings[ev->level], ev->file_name, ev->line);
+	fprintf(ev->udata, "%s %s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ", time_string, level_colors[ev->level], level_strings[ev->level], ev->file_name, ev->line);
 #else
 	// fprintf(ev->udata, "%s %-5s %s:%d: ", time_string, level_strings[ev->level], ev->file_name, ev->line);
 	fprintf(ev->udata, "%-5s %s:%d: ", level_strings[ev->level], ev->file_name, ev->line);
@@ -123,7 +123,7 @@ void log_log(int level, const char* file_name, int line, const char* fmt, ...)
 		.level = level,
 	};
 
-    stdout_callback(&ev);
+	stdout_callback(&ev);
 
 	lock();
 	// callback输出
@@ -141,7 +141,7 @@ void log_log(int level, const char* file_name, int line, const char* fmt, ...)
 	unlock();
 }
 
-// test
+#ifndef TEST_LOG
 int main(int argc, char* argv[])
 {
 	// FILE* fp = fopen("./log_info.txt", "ab");
@@ -159,3 +159,4 @@ int main(int argc, char* argv[])
 	// fclose(fp);
 	return 0;
 }
+#endif
