@@ -1,12 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
 
-// void printByteBinary(uint8_t* addr)
-// {
-// 	for (size_t i = 0; i < 8; i++)
-// 		printf(*addr & (0x80 >> i) ? "1" : "0");
-// }
-
 // x86 contex-M3
 // 0x00140E03;
 // 0000 0000 0001 0100 0000 1110 0000 0011
