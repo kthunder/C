@@ -1,28 +1,34 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define MASK 0x80
+// void printByteBinary(uint8_t* addr)
+// {
+// 	for (size_t i = 0; i < 8; i++)
+// 		printf(*addr & (0x80 >> i) ? "1" : "0");
+// }
 
-void printByteBinary(uint8_t* addr)
-{
-	for (size_t i = 0; i < 8; i++)
-		putchar(*addr & (MASK >> i) ? '1' : '0');
-}
-
-void printBinary(uint8_t* addr, int32_t nByte)
+// x86 contex-M3
+// 0x00140E03;
+// 0000 0000 0001 0100 0000 1110 0000 0011
+void printBinary(void* addr, int32_t nByte)
 {
 	while (nByte--)
 	{
-		printByteBinary(addr++);
+		for (size_t i = 0; i < 8; i++)
+		{
+			putchar(*(uint8_t*)(addr + nByte) & (0x80 >> i) ? '1' : '0');
+			if (i == 3) putchar(' ');
+		}
 		putchar(nByte ? ' ' : '\n');
 	}
 }
 
 int main(int argc, char const* argv[])
 {
-	uint32_t i = 0xFF00FF00;
+	uint32_t i = 0x00140E03;
+	// 0000 0000 0001 0100 0000 1110 0000 0011
 
-	printBinary((uint8_t*)&i, sizeof(uint32_t));
+	printBinary(&i, sizeof(uint32_t));
 
 	return 0;
 }
