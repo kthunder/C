@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAXLEN 1024
+#define MAXLEN 102400
 
 void clearInput();
 
@@ -17,16 +17,22 @@ int main()
 		{
 			char* pBuffer = szBuffer;
 			printf("{");
+            size_t k = 0;
 			while (*pBuffer != '\0')
 			{
-
 				printf("0x");
 				putchar(*pBuffer++);
+                k++;
 				putchar(*pBuffer++);
-				if (*pBuffer != '\0')
+                k++;
+				if (*pBuffer != '\0' && (k%32 != 0))
 				{
 					printf(", ");
 				}
+                if (k%32 == 0)
+                {
+                    printf("\n");
+                }
 			}
 			printf("};\n");
 		}
@@ -74,7 +80,7 @@ char* readHexArray(char* szBuffer)
 	*pBuffer = '\0';
 	if (strlen(szBuffer) % 2 != 0)
 	{
-		puts("StringLen mast be even number!");
+		puts("StringLen must be even number!");
 		return 0;
 	}
 	return szBuffer;

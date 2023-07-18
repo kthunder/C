@@ -9,15 +9,15 @@ uint64_t max = 0;
 
 int main(int argc, char* argv[])
 {
-    uint64_t temp = 0;
-    while (u32++ != 0xFFFFFFFF)
-    {
-        temp = u32 - u64;
-        max = max > temp ? max : temp;
-    }
-    
-    printf("sizeof(u32 - u64) %X\n",sizeof(u32 - u64));
-    printf("u32 - u64 %X\n",u32 - u64);
-    printf("max %X\n",max);
+	printf("%s", ucCase[0][1]);
+	// uint64_t temp = 0;
+	// while (u32++ != 0xFFFFFFFF)
+	// {
+	//     temp = u32 - u64;
+	//     max = max > temp ? max : temp;
+	// }
 
+	// printf("sizeof(u32 - u64) %X\n",sizeof(u32 - u64));
+	// printf("u32 - u64 %X\n",u32 - u64);
+	// printf("max %X\n",max);
 }
