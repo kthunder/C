@@ -31,7 +31,7 @@ int main()
 				}
                 if (k%32 == 0)
                 {
-                    printf("\n");
+                    printf(",\n");
                 }
 			}
 			printf("};\n");
